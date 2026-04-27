@@ -1,9 +1,7 @@
 import argparse
-import os
 import sys
 
-from rightime.engine import ConversionEngine
-from rightime.providers.openai_responses import OpenAIResponsesProvider
+from rightime.runtime import build_engine, load_runtime_config
 from rightime.types import ConversionRequest
 
 
@@ -18,28 +16,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    api_key = os.environ.get("RIGHTIME_OPENAI_API_KEY")
-    model = os.environ.get("RIGHTIME_OPENAI_MODEL")
-    endpoint = os.environ.get("RIGHTIME_OPENAI_ENDPOINT")
-
-    missing = [
-        name
-        for name, value in (
-            ("RIGHTIME_OPENAI_API_KEY", api_key),
-            ("RIGHTIME_OPENAI_MODEL", model),
-        )
-        if not value
-    ]
-    if missing:
-        print(f"Missing required environment variables: {', '.join(missing)}", file=sys.stderr)
+    try:
+        engine = build_engine(load_runtime_config())
+    except RuntimeError as exc:
+        print(str(exc), file=sys.stderr)
         return 2
 
-    provider_kwargs = {"api_key": api_key, "model": model}
-    if endpoint:
-        provider_kwargs["endpoint"] = endpoint
-
-    provider = OpenAIResponsesProvider(**provider_kwargs)
-    engine = ConversionEngine(provider=provider)
     result = engine.convert(
         ConversionRequest(
             raw_text=args.text,
