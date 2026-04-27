@@ -9,3 +9,4 @@
 - 2026-04-27: The engine should fail visibly on cloud failure instead of silently using heuristic conversion, because low-quality hidden substitution would undermine trust in an input method.
 - 2026-04-27: Milestone 1 is planned as a Python standard-library conversion engine plus CLI because conversion quality and provider boundaries can be tested before choosing the desktop shell framework.
 - 2026-04-27: The conversion engine keeps request, prompt, provider, and session-context boundaries in separate modules so the later floating composer can depend on a small stable API.
+- 2026-04-27: Milestone 2 is planned with a `tkinter` composer and `pynput` OS adapters because it proves the hotkey-popup workflow while keeping native TSF/InputMethodKit work out of scope.
