@@ -10,7 +10,7 @@ from rightime.desktop.ui import ComposerWindow
 from rightime.runtime import build_engine, load_runtime_config
 
 
-DEFAULT_HOTKEY = "<ctrl>+<alt>+space"
+DEFAULT_HOTKEY = "<ctrl>+<alt>+<space>"
 
 
 def create_controller(engine, clipboard: TkClipboard, paste_service: PynputPasteService) -> ComposerController:

@@ -12,26 +12,43 @@ class OpenAIResponsesProvider:
         self,
         api_key: str,
         model: str,
-        endpoint: str = "https://api.openai.com/v1/responses",
+        endpoint: str | None = None,
         timeout_s: int = 20,
         opener: Callable[..., Any] = urlopen,
     ) -> None:
         self.model = model
         self._api_key = api_key
-        self._endpoint = endpoint
+        self._endpoint = endpoint or "https://api.openai.com/v1/responses"
         self._timeout_s = timeout_s
         self._opener = opener
 
+    def _get_endpoint(self) -> str:
+        if self._endpoint.endswith("/responses") or self._endpoint.endswith("/chat/completions"):
+            return self._endpoint
+        if self._endpoint.rstrip("/").endswith("/v1"):
+            return self._endpoint.rstrip("/") + "/chat/completions"
+        return self._endpoint
+
     def convert(self, prompt: ProviderPrompt) -> ProviderOutput:
-        payload = {
-            "model": self.model,
-            "instructions": prompt.instructions,
-            "input": prompt.input_text,
-            "text": {"format": {"type": "text"}},
-        }
+        endpoint = self._get_endpoint()
+        if endpoint.endswith("/v1/responses") or endpoint.endswith("/responses"):
+            payload = {
+                "model": self.model,
+                "instructions": prompt.instructions,
+                "input": prompt.input_text,
+                "text": {"format": {"type": "text"}},
+            }
+        else:
+            payload = {
+                "model": self.model,
+                "messages": [
+                    {"role": "system", "content": prompt.instructions},
+                    {"role": "user", "content": prompt.input_text},
+                ],
+            }
         data = json.dumps(payload).encode("utf-8")
         request = Request(
-            self._endpoint,
+            endpoint,
             data=data,
             method="POST",
             headers={
@@ -66,12 +83,19 @@ class OpenAIResponsesProvider:
 
 
 def _extract_output_text(parsed: dict[str, Any]) -> str:
-    for output_item in parsed.get("output", []):
-        for content_item in output_item.get("content", []):
-            if content_item.get("type") == "output_text":
-                text = content_item.get("text")
-                if isinstance(text, str):
-                    return text
+    if "choices" in parsed:
+        for choice in parsed.get("choices", []):
+            message = choice.get("message", {})
+            content = message.get("content")
+            if isinstance(content, str):
+                return content
+    else:
+        for output_item in parsed.get("output", []):
+            for content_item in output_item.get("content", []):
+                if content_item.get("type") == "output_text":
+                    text = content_item.get("text")
+                    if isinstance(text, str):
+                        return text
     raise ProviderError("invalid_provider_response", "OpenAI response missing output_text")
 
 
@@ -84,8 +108,8 @@ def _extract_token_count(parsed: dict[str, Any]) -> int | None:
     if isinstance(total, int):
         return total
 
-    input_tokens = usage.get("input_tokens")
-    output_tokens = usage.get("output_tokens")
+    input_tokens = usage.get("input_tokens") or usage.get("prompt_tokens")
+    output_tokens = usage.get("output_tokens") or usage.get("completion_tokens")
     if isinstance(input_tokens, int) and isinstance(output_tokens, int):
         return input_tokens + output_tokens
 
