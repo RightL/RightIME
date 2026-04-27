@@ -9,8 +9,12 @@ description = "Cloud-first pinyin-to-Chinese conversion engine for rightIME"
 requires-python = ">=3.11"
 dependencies = []
 
+[project.optional-dependencies]
+desktop = ["pynput>=1.8.1,<2"]
+
 [project.scripts]
 rightime-convert = "rightime.cli:main"
+rightime-composer = "rightime.desktop_app:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
