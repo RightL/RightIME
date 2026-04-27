@@ -1,0 +1,5 @@
+{"input":"wo xianzai zai he LLM taolun rightIME de sheji","context":[],"acceptable":["我现在在和 LLM 讨论 rightIME 的设计"]}
+{"input":"zhege gongneng dui zhong yingwen hunhe hen youyong","context":[],"acceptable":["这个功能对中英文混合很有用"]}
+{"input":"ba API key fang zai settings li, buyao xie dao code limian","context":["我们在讨论 rightIME 的桌面设置。"],"acceptable":["把 API key 放在 settings 里，不要写到 code 里面"]}
+{"input":"manual trigger he pause trigger dou keyi, danshi moren yong manual","context":["第一版使用 hotkey composer。"],"acceptable":["manual trigger 和 pause trigger 都可以，但是默认用 manual"]}
+{"input":"ruguo cloud request shibai, UI yinggai mingque gaosu yonghu","context":[],"acceptable":["如果 cloud request 失败，UI 应该明确告诉用户"]}
