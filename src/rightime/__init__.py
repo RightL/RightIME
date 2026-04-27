@@ -1,3 +1,4 @@
+from rightime.context import SessionContext
 from rightime.types import (
     ConversionMetadata,
     ConversionRequest,
@@ -14,5 +15,6 @@ __all__ = [
     "ConversionResult",
     "ConversionSettings",
     "ProviderPrompt",
+    "SessionContext",
     "__version__",
 ]
